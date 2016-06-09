@@ -9,16 +9,17 @@ import { Router } from '@angular/router-deprecated';
 	selector: 'my-heroes',
 	templateUrl: 'app/heroes.component.html',
 	styleUrls: ['app/heroes.component.css'],
+	directives: [HeroDetailComponent]
 })
 export class HeroesComponent implements OnInit {
 	
 	constructor(private router: Router, private heroService: HeroService) { }
 	
 	title = 'Tour of Heroes';
-	
 	selectedHero: Hero;
-	
+	addingHero = false;
 	public heroes = HEROES;
+	error: any;
 
 	onSelect(hero: Hero) { this.selectedHero = hero; }
 
@@ -33,6 +34,28 @@ export class HeroesComponent implements OnInit {
 	gotoDetail() {
 		this.router.navigate(['HeroDetail', { id: this.selectedHero.id }]);
 	}
+
+	addHero() {
+		this.addingHero = true;
+		this.selectedHero = null;
+	}
+
+	close(savedHero: Hero) {
+		this.addingHero = false;
+		if (savedHero) { this.getHeroes(); }
+	}
+
+	delete(hero: Hero, event: any) {
+		event.stopPropagation();
+		this.heroService
+			.delete(hero)
+			.then(res => {
+				this.heroes = this.heroes.filter(h => h !== hero);
+				if (this.selectedHero === hero) { this.selectedHero = null; }
+			})
+			.catch(error => this.error = error); // TODO: Display error message
+	}
+
 
 }
 

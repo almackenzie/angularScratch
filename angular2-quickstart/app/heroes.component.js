@@ -9,6 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
+var hero_detail_component_1 = require('./hero-detail.component');
 var hero_service_1 = require('./hero.service');
 var router_deprecated_1 = require('@angular/router-deprecated');
 var HeroesComponent = (function () {
@@ -16,6 +17,7 @@ var HeroesComponent = (function () {
         this.router = router;
         this.heroService = heroService;
         this.title = 'Tour of Heroes';
+        this.addingHero = false;
         this.heroes = HEROES;
     }
     HeroesComponent.prototype.onSelect = function (hero) { this.selectedHero = hero; };
@@ -29,11 +31,35 @@ var HeroesComponent = (function () {
     HeroesComponent.prototype.gotoDetail = function () {
         this.router.navigate(['HeroDetail', { id: this.selectedHero.id }]);
     };
+    HeroesComponent.prototype.addHero = function () {
+        this.addingHero = true;
+        this.selectedHero = null;
+    };
+    HeroesComponent.prototype.close = function (savedHero) {
+        this.addingHero = false;
+        if (savedHero) {
+            this.getHeroes();
+        }
+    };
+    HeroesComponent.prototype.delete = function (hero, event) {
+        var _this = this;
+        event.stopPropagation();
+        this.heroService
+            .delete(hero)
+            .then(function (res) {
+            _this.heroes = _this.heroes.filter(function (h) { return h !== hero; });
+            if (_this.selectedHero === hero) {
+                _this.selectedHero = null;
+            }
+        })
+            .catch(function (error) { return _this.error = error; }); // TODO: Display error message
+    };
     HeroesComponent = __decorate([
         core_1.Component({
             selector: 'my-heroes',
             templateUrl: 'app/heroes.component.html',
             styleUrls: ['app/heroes.component.css'],
+            directives: [hero_detail_component_1.HeroDetailComponent]
         }), 
         __metadata('design:paramtypes', [router_deprecated_1.Router, hero_service_1.HeroService])
     ], HeroesComponent);
